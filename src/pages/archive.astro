@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { publishedPosts, dateLabel, postUrl } from '../lib/blog';
+const posts = await publishedPosts();
+const groups = new Map<string, typeof posts>();
+for (const post of posts) {
+  const year = new Intl.DateTimeFormat('en', { year: 'numeric', timeZone: 'Asia/Shanghai' }).format(post.data.date);
+  groups.set(year, [...(groups.get(year) || []), post]);
+}
+---
+<Layout title="随笔归档" active="archive">
+  <header class="page-heading"><h1>归档</h1></header>
+  {Array.from(groups).map(([year, entries]) => <section aria-labelledby={`year-${year}`}><h2 class="archive-year" id={`year-${year}`}>{year}</h2>{entries.map(post => <div class="archive-item"><time datetime={post.data.date.toISOString()}>{dateLabel(post.data.date).slice(5)}</time><a href={postUrl(post)}>{post.data.title}</a></div>)}</section>)}
+  {!posts.length && <p class="empty-state">暂无随笔</p>}
+</Layout>

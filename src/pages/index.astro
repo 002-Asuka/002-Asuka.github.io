@@ -1,0 +1,26 @@
+---
+import Layout from '../layouts/Layout.astro';
+import settings from '../../site.json';
+import { publishedPosts, dateLabel, postUrl, url } from '../lib/blog';
+const posts = await publishedPosts();
+---
+<Layout active="home">
+  <section class="home-hero" aria-labelledby="home-title">
+    <h1 id="home-title">{settings.title}</h1>
+  </section>
+  <div class="home-grid">
+    <aside class="glass author-card" aria-label="作者">
+      <img class="author-avatar" src={url('images/avatar.webp')} alt={`${settings.author}的头像`} width="640" height="649" decoding="async" />
+      <div class="author-details">
+        <h2>{settings.author}</h2>
+        <p class="author-signature">放浪形骸。</p>
+        <a class="social-link" href={`https://github.com/${settings.github}`}>GitHub</a>
+      </div>
+    </aside>
+    <section class="home-posts" aria-label="随笔">
+      {posts.length ? posts.map(post => <article class="glass home-post-card">
+        <div class="post-summary"><h2><a href={postUrl(post)}>{post.data.title}</a></h2><div class="post-meta"><time datetime={post.data.date.toISOString()}>{dateLabel(post.data.date)}</time></div></div>
+      </article>) : <div class="glass home-post-card empty-state">暂无随笔</div>}
+    </section>
+  </div>
+</Layout>

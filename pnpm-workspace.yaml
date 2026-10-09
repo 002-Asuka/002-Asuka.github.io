@@ -1,0 +1,3 @@
+storeDir: .pnpm-store
+minimumReleaseAgeExclude:
+  - astro@7.3.8

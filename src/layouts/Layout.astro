@@ -1,0 +1,41 @@
+---
+import settings from '../../site.json';
+import { url } from '../lib/blog';
+import '../styles/global.css';
+interface Props { title?: string; description?: string; active?: string; }
+const { title, description = settings.description, active = '' } = Astro.props;
+const pageTitle = title ? `${title} · ${settings.title}` : settings.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="author" content={settings.author} />
+    <meta name="theme-color" content="#537482" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content={active === 'post' ? 'article' : 'website'} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/svg+xml" href={url('favicon.svg')} />
+    <title>{pageTitle}</title>
+  </head>
+  <body class:list={[active === 'home' ? 'home-page' : 'reading-page']}>
+    <div class="landscape" aria-hidden="true"><img src={url('images/golden-field.webp')} alt="" fetchpriority="high" decoding="async" /></div>
+    <a class="skip-link" href="#main">跳到正文</a>
+    <div class="site-shell">
+      <header class="site-header">
+        <a class="brand" href={url()} aria-label={`${settings.title}首页`}>{settings.title}</a>
+        <nav aria-label="主导航">
+          <a href={url()} aria-current={active === 'home' ? 'page' : undefined}>首页</a>
+          <a href={url('archive/')} aria-current={active === 'archive' ? 'page' : undefined}>归档</a>
+          <a href={url('about/')} aria-current={active === 'about' ? 'page' : undefined}>关于</a>
+        </nav>
+      </header>
+      <main id="main" class:list={[active !== 'home' && 'reading-surface']}><slot /></main>
+    </div>
+  </body>
+</html>

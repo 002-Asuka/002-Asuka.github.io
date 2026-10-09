@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import settings from '../../site.json';
+---
+<Layout title="关于" active="about">
+  <div class="article-container">
+    <header class="page-heading"><h1>关于</h1></header>
+    <div class="prose"><p>{settings.author}</p><p><a href={`https://github.com/${settings.github}`}>GitHub</a></p></div>
+  </div>
+</Layout>

@@ -1,0 +1,14 @@
+{
+  "name": "xianye-blog",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1",
+    "new": "node scripts/new-post.mjs"
+  },
+  "dependencies": { "astro": "7.3.8" }
+}
