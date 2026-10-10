@@ -1,0 +1,34 @@
+---
+import comments from '../../comments.json';
+import { url } from '../lib/blog';
+const ready = Boolean(comments.repoId && comments.categoryId);
+const theme = new URL(url('styles/comments.css'), Astro.site).href;
+---
+<section class="comments" aria-labelledby="comments-heading">
+  <h2 id="comments-heading">评论</h2>
+  {ready ? <>
+    <div class="giscus"></div>
+    <script is:inline
+      src="https://giscus.app/client.js"
+      data-repo={comments.repo}
+      data-repo-id={comments.repoId}
+      data-category={comments.category}
+      data-category-id={comments.categoryId}
+      data-mapping="pathname"
+      data-strict="1"
+      data-reactions-enabled="0"
+      data-emit-metadata="0"
+      data-input-position="top"
+      data-theme={theme}
+      data-lang="zh-CN"
+      crossorigin="anonymous"
+      async></script>
+    <noscript><a href={`https://github.com/${comments.repo}/discussions`}>在 GitHub 查看评论</a></noscript>
+  </> : <p class="comments-pending">评论暂未开放。</p>}
+</section>
+<style>
+  .comments { margin-top: 44px; padding-top: 28px; border-top: 1px solid var(--line); }
+  h2 { font-family: var(--serif); font-size: 24px; line-height: 1.5; margin: 0 0 22px; }
+  .giscus { min-width: 0; }
+  .comments-pending { font-size: 14px; color: var(--muted); }
+</style>

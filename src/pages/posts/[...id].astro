@@ -1,6 +1,7 @@
 ---
 import { render, type CollectionEntry } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
+import Comments from '../../components/Comments.astro';
 import { publishedPosts, dateLabel, url } from '../../lib/blog';
 export async function getStaticPaths() {
   return (await publishedPosts()).map(post => ({ params: { id: post.id }, props: { post } }));
@@ -19,5 +20,6 @@ const { Content } = await render(post);
       </header>
       <div class="prose"><Content /></div>
     </article>
+    <Comments />
   </div>
 </Layout>

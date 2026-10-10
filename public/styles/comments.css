@@ -1,0 +1,17 @@
+@import url("https://giscus.app/themes/light.css");
+
+main {
+  --color-fg-default: #202c35;
+  --color-fg-muted: #465763;
+  --color-canvas-default: transparent;
+  --color-canvas-subtle: rgba(255, 255, 255, .46);
+  --color-canvas-inset: rgba(255, 255, 255, .6);
+  --color-border-default: rgba(43, 65, 78, .2);
+  --color-border-muted: rgba(43, 65, 78, .14);
+  --color-accent-fg: #934219;
+  --color-accent-emphasis: #934219;
+  --color-accent-subtle: rgba(147, 66, 25, .1);
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+body { background: transparent; }
+.gsc-comment-box, .gsc-comment { border-radius: 12px; }
