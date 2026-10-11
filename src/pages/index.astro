@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import MusicPlayer from '../components/MusicPlayer.astro';
 import settings from '../../site.json';
 import { publishedPosts, dateLabel, postUrl, url } from '../lib/blog';
 const posts = await publishedPosts();
@@ -14,6 +15,7 @@ const posts = await publishedPosts();
       <div class="author-details">
         <h2>{settings.author}</h2>
         <p class="author-signature">放浪形骸。</p>
+        <MusicPlayer />
         <a class="social-link" href={`https://github.com/${settings.github}`}>GitHub</a>
       </div>
     </aside>

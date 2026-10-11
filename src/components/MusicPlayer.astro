@@ -1,0 +1,87 @@
+---
+import music from '../../music.json';
+import { url } from '../lib/blog';
+const ready = Boolean(music.src);
+const src = music.src.startsWith('https://') ? music.src : url(music.src);
+---
+<div class="music-player" data-music-player aria-label="音乐播放器">
+  <div class="music-main">
+    <button class="music-toggle" type="button" aria-label="播放音乐" aria-pressed="false" disabled={!ready}>
+      <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+      <svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5h4v14H6zm8 0h4v14h-4z" /></svg>
+    </button>
+    <div class="music-copy">
+      <span class="music-title" title={music.title}>{music.title || '音乐'}</span>
+      <span class="music-status" aria-live="polite">{ready ? music.artist : '待添加音乐'}</span>
+    </div>
+  </div>
+  <input class="music-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="播放进度" disabled />
+  <div class="music-time"><span data-elapsed>0:00</span><span data-duration>0:00</span></div>
+  {ready && <audio src={src} preload="none" />}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-music-player]').forEach(player => {
+    const audio = player.querySelector('audio');
+    if (!audio) return;
+    const button = player.querySelector<HTMLButtonElement>('.music-toggle')!;
+    const seek = player.querySelector<HTMLInputElement>('.music-seek')!;
+    const elapsed = player.querySelector<HTMLElement>('[data-elapsed]')!;
+    const duration = player.querySelector<HTMLElement>('[data-duration]')!;
+    const status = player.querySelector<HTMLElement>('.music-status')!;
+    const originalStatus = status.textContent;
+    const format = (seconds: number) => {
+      if (!Number.isFinite(seconds)) return '0:00';
+      return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
+    };
+    const update = () => {
+      const available = Number.isFinite(audio.duration) && audio.duration > 0;
+      seek.disabled = !available;
+      seek.value = available ? String(audio.currentTime / audio.duration * 100) : '0';
+      elapsed.textContent = format(audio.currentTime);
+      duration.textContent = format(audio.duration);
+    };
+    const updatePlayback = () => {
+      const playing = !audio.paused;
+      player.toggleAttribute('data-playing', playing);
+      button.setAttribute('aria-label', playing ? '暂停音乐' : '播放音乐');
+      button.setAttribute('aria-pressed', String(playing));
+    };
+    button.addEventListener('click', async () => {
+      if (!audio.paused) { audio.pause(); return; }
+      status.textContent = originalStatus;
+      try { await audio.play(); }
+      catch { status.textContent = '暂时无法播放'; }
+    });
+    seek.addEventListener('input', () => {
+      if (Number.isFinite(audio.duration) && audio.duration > 0) {
+        audio.currentTime = audio.duration * Number(seek.value) / 100;
+        update();
+      }
+    });
+    audio.addEventListener('loadedmetadata', update);
+    audio.addEventListener('durationchange', update);
+    audio.addEventListener('timeupdate', update);
+    audio.addEventListener('play', updatePlayback);
+    audio.addEventListener('pause', updatePlayback);
+    audio.addEventListener('ended', () => { updatePlayback(); update(); });
+    audio.addEventListener('error', () => { status.textContent = '音频暂不可用'; updatePlayback(); });
+  });
+</script>
+<style>
+  .music-player { width: 100%; margin: 0 0 12px; padding: 10px; border: 1px solid rgba(255,255,255,.52); border-radius: 13px; background: rgba(255,255,255,.18); text-align: left; }
+  .music-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .music-toggle { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 30px; padding: 6px; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; color: var(--ink); background: rgba(255,255,255,.35); cursor: pointer; }
+  .music-toggle:disabled { opacity: .45; cursor: default; }
+  .music-toggle:focus-visible, .music-seek:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .music-toggle svg { width: 17px; height: 17px; fill: currentColor; }
+  .pause-icon, [data-playing] .play-icon { display: none; }
+  [data-playing] .pause-icon { display: block; }
+  .music-copy { min-width: 0; flex: 1; }
+  .music-title, .music-status { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .music-title { font-size: 12px; line-height: 1.5; font-weight: 600; }
+  .music-status { font-size: 10px; line-height: 1.5; color: var(--muted); }
+  .music-seek { display: block; width: 100%; height: 12px; margin: 9px 0 2px; accent-color: var(--accent); cursor: pointer; }
+  .music-seek:disabled { opacity: .4; cursor: default; }
+  .music-time { display: flex; justify-content: space-between; font-size: 9px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (max-width: 640px) { .music-player { max-width: 230px; margin-bottom: 10px; } }
+</style>
