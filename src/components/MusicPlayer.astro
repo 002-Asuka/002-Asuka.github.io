@@ -3,7 +3,23 @@ import music from '../../music.json';
 import { url } from '../lib/blog';
 const ready = Boolean(music.src);
 const src = music.src.startsWith('https://') ? music.src : url(music.src);
+const netease = music.provider === 'netease' && /^\d+$/.test(music.playlistId);
+const embedUrl = `https://music.163.com/outchain/player?${new URLSearchParams({ type: '0', id: music.playlistId, auto: '0', height: '430' })}`;
 ---
+{netease ? <div class="netease-player">
+  <button class="music-launch" type="button" popovertarget="netease-music-panel" aria-label="打开网易云歌单播放器">
+    <span class="music-note" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13M9 8l11-2" /><ellipse cx="6" cy="18" rx="3" ry="2" /><ellipse cx="17" cy="16" rx="3" ry="2" /></svg></span>
+    <span class="music-copy"><span class="music-title">{music.title}</span><span class="music-status">{music.artist}</span></span>
+    <svg class="music-expand" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+  </button>
+  <div class="music-panel" id="netease-music-panel" popover>
+    <div class="music-panel-header">
+      <a href={music.source} target="_blank" rel="noopener noreferrer">网易云歌单 ↗</a>
+      <button class="music-close" type="button" popovertarget="netease-music-panel" popovertargetaction="hide" aria-label="收起歌单播放器">×</button>
+    </div>
+    <iframe data-netease-frame data-src={embedUrl} title="网易云歌单播放器" width="330" height="450" loading="lazy" allow="autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+  </div>
+</div> : <>
 <div class="music-player" data-music-player aria-label="音乐播放器">
   <div class="music-main">
     <button class="music-toggle" type="button" aria-label="播放音乐" aria-pressed="false" disabled={!ready}>
@@ -19,7 +35,14 @@ const src = music.src.startsWith('https://') ? music.src : url(music.src);
   <div class="music-time"><span data-elapsed>0:00</span><span data-duration>0:00</span></div>
   {ready && <audio src={src} preload="none" />}
 </div>
+</>}
 <script>
+  const neteasePanel = document.querySelector<HTMLElement>('#netease-music-panel');
+  neteasePanel?.addEventListener('toggle', (event) => {
+    if ((event as ToggleEvent).newState !== 'open') return;
+    const frame = neteasePanel.querySelector<HTMLIFrameElement>('[data-netease-frame]');
+    if (frame && !frame.hasAttribute('src') && frame.dataset.src) frame.src = frame.dataset.src;
+  });
   document.querySelectorAll<HTMLElement>('[data-music-player]').forEach(player => {
     const audio = player.querySelector('audio');
     if (!audio) return;
@@ -68,6 +91,19 @@ const src = music.src.startsWith('https://') ? music.src : url(music.src);
   });
 </script>
 <style>
+  .netease-player { width: 100%; margin-bottom: 12px; }
+  .music-launch { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 8px; color: var(--ink); border: 1px solid rgba(255,255,255,.52); border-radius: 13px; background: rgba(255,255,255,.18); text-align: left; cursor: pointer; }
+  .music-launch:hover { background: rgba(255,255,255,.32); }
+  .music-launch:focus-visible, .music-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .music-note { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; background: rgba(255,255,255,.28); }
+  .music-note svg, .music-expand { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .music-expand { width: 12px; height: 12px; flex: 0 0 12px; }
+  .music-panel { width: min(350px, calc(100vw - 24px)); max-height: calc(100svh - 24px); padding: 10px; overflow: auto; border: 1px solid rgba(255,255,255,.7); border-radius: 18px; background: rgba(248,251,253,.78); color: var(--ink); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 15px 44px rgba(14,31,37,.2); }
+  .music-panel::backdrop { background: rgba(19,32,39,.12); }
+  .music-panel-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 4px 8px; font-size: 12px; }
+  .music-panel-header a:hover { color: var(--accent); }
+  .music-close { width: 28px; height: 28px; padding: 0; font-size: 23px; line-height: 1; border: 0; border-radius: 50%; background: rgba(255,255,255,.35); color: var(--ink); cursor: pointer; }
+  iframe { display: block; width: 100%; height: 450px; border: 0; border-radius: 10px; background: white; }
   .music-player { width: 100%; margin: 0 0 12px; padding: 10px; border: 1px solid rgba(255,255,255,.52); border-radius: 13px; background: rgba(255,255,255,.18); text-align: left; }
   .music-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .music-toggle { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 30px; padding: 6px; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; color: var(--ink); background: rgba(255,255,255,.35); cursor: pointer; }
